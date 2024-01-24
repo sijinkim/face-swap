@@ -8,7 +8,101 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 
+[tool.poetry.group.dev.dependencies]
+poethepoet = "^0.24.4"
+isort = "^5.13.2"
+black = "^23.12.1"
+mypy = "^1.8.0"
+pylint = "^3.0.3"
+pytest = "^7.4.3"
+pytest-cov = "^4.1.0"
+pydantic = "^2.5.3"
+pylint-pydantic = "^0.3.2"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+
+  [tool.poe.tasks.format-isort]
+  help = "Run isort on the code base"
+  cmd  = "isort ."
+
+  [tool.poe.tasks.format-black]
+  help = "Run black on the code base"
+  cmd  = "black ."
+
+  [tool.poe.tasks.format]
+  help     = "Run formating tools on the code base"
+  sequence = ["format-isort", "format-black"]
+
+  [tool.poe.tasks.clean]
+  help = "Remove generated files"
+  cmd  = """
+    rm -rf .coverage
+           .mypy_cache
+           .pytest_cache
+           ./**/__pycache__
+  """
+
+  [tool.poe.tasks.test]
+  help = "Run unit and feature tests"
+  cmd  = "pytest --cov=src tests/"
+  envfile = ".env.test"
+
+  [tool.poe.tasks.types]
+  help = "Run the type checker"
+  cmd  = "mypy src --ignore-missing-imports"
+
+  [tool.poe.tasks.lint]
+  help = "Run the linter"
+  cmd  = "pylint src"
+
+  [tool.poe.tasks.style-black]
+  help = "Validate black code style"
+  cmd  = "black . --check --diff"
+
+  [tool.poe.tasks.style-isort]
+  help = "Validate isort code style"
+  cmd  = "isort . --check --diff"
+
+  [tool.poe.tasks.style]
+  help = "Validate code style"
+  sequence = ["style-isort", "style-black"]
+
+  [tool.poe.tasks.check]
+  help     = "Run all checks on the code base"
+  sequence = ["style", "types", "lint", "test"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.coverage.run]
+branch = true
+omit = ["*/main.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+  "class .*\\bProtocol\\):",
+  "@(abc\\.)?abstractmethod"
+]
+fail_under = 80
+show_missing = true
+
+[tool.coverage.xml]
+output = "coverage-reports/coverage.xml"
+
+[tool.mypy]
+strict = true
+incremental = false
+plugins = ["pydantic.mypy"]
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = ["R0903", "C0116", "C0115", "C0114"]
+
+[tool.pylint.MASTER]
+load-plugins = "pylint_pydantic"
