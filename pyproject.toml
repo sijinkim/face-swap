@@ -107,3 +107,6 @@ disable = ["R0903", "C0116", "C0115", "C0114"]
 
 [tool.pylint.MASTER]
 load-plugins = "pylint_pydantic"
+
+[tool.pylint.typecheck]
+generated-members = "cv2.*"
