@@ -1,4 +1,4 @@
-from .entity import Video, Frame, ExtractedFaceImage, FaceMask
+from .entity import ExtractedFaceImage, FaceMask, Frame, Video
 
 __all__ = [
     "Video",
