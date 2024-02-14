@@ -1,6 +1,6 @@
-from .extraction import get_frames_from_video, load_frames
+from .extraction import get_frames_from_video, make_frame_list
 
 __all__ = [
     "get_frames_from_video",
-    "load_frames",
+    "make_frame_list",
 ]

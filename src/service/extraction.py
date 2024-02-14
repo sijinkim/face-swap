@@ -32,7 +32,7 @@ def get_frames_from_video(video: Video) -> None:
     cap.release()
 
 
-def load_frames(frame_folder: Path) -> list[Frame]:
+def make_frame_list(frame_folder: Path) -> list[Frame]:
     if not frame_folder.exists():
         raise ValueError("Frame folder does not exist.")
 
