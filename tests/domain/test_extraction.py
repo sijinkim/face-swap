@@ -2,8 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from src.domain import Frame, Video
-from src.service import get_frames_from_video, make_frame_list
+from src.domain import Frame, Video, get_frames_from_video, make_frame_list
 
 
 @pytest.fixture
