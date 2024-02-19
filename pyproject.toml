@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.12"
 opencv-python = "^4.9.0.80"
 torch = "^2.2.0"
+scikit-image = "^0.22.0"
 
 [tool.poetry.group.dev.dependencies]
 poethepoet = "^0.24.4"
