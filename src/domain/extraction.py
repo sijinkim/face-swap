@@ -2,7 +2,7 @@ from pathlib import Path
 
 import cv2
 
-from src.domain import Frame, Video
+from .entity import Frame, Video
 
 
 def get_frames_from_video(video: Video) -> None:

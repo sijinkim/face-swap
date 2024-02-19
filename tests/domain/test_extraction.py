@@ -2,18 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from src.domain import Frame, Video
-from src.service import get_frames_from_video, make_frame_list
-
-
-@pytest.fixture
-def video_path():
-    return Path("./tests/test_data/test_video.mp4")
-
-
-@pytest.fixture
-def fail_video_path():
-    return Path("./tests/test_data/fail_video.mp4")
+from src.domain.entity import Frame, Video
+from src.domain.extraction import get_frames_from_video, make_frame_list
 
 
 def test_can_extract_frames_from_video(video_path: Path):
