@@ -18,7 +18,7 @@ class Video2Frame:
         if not self.video_path.exists():
             raise ValueError("Video file does not exist.")
         
-        if not self.save_dir.exists():
+        if not self.save_path.exists():
             self.save_path.mkdir(parents=True, exist_ok=True)
         
         cap = cv2.VideoCapture(str(self.video_path))
