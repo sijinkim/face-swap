@@ -1,6 +1,3 @@
-from .dataset import Video2Frame, FaceExtractor
+from .dataset import FaceExtractor, Video2Frame
 
-__all__ = [
-    "Video2Frame",
-    "FaceExtractor"
-]
+__all__ = ["Video2Frame", "FaceExtractor"]

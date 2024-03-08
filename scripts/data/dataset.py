@@ -46,20 +46,35 @@ class Video2Frame:
 
 class FaceExtractor:
     """
-    A class to detect face from frames using
-    - (후보1) DeepFace(A hybrid face recognition framework wrapping SOTA detection model)
-    - (후보2) YuNet(light-weight face detection model)
-    - (후보3) YOLO face detection model
-
-    original repo face detector model: S3FD, 사전 학습 weight 사용. 구현 사용 시, S3FD만 따로 학습 필요(torch 구현 실사용 어려움)
+    Extract process
+    1) rects_stage(): detect face position
+    2) landmark_stage(): get face landmarks
+    3) final_stage(): get aligned face data
     """
 
-    def __init__(self, detector_type: FaceDetector):
-        self.model_type = detector_type
+    model_type: FaceDetector
 
-    def detect(self, image: np.ndarray) -> tuple[int, np.ndarray]:
-        ret, faces = self.model_type.detector.detect(image)
-        return (ret, faces)
+    def rects_stage(self, image: np.ndarray) -> tuple[int, np.ndarray[int,]]:
+        """
+        [Rects_stage]
+        detect face bbox and eyes, nose, mouth points.
 
-    def extract(self, image: np.ndarray):
+        Args:
+            image: an array of SINGLE image with A face (HWC BGR image - using cv2.imread)
+
+        Returns:
+            face: detection results - shape [num_faces, 15 face points info]
+                  (here num_faces=1)
+        """
+        ret, face = self.model_type.detector.detect(image)
+
+        if not ret == 1:
+            raise ValueError("Face detection failed.")
+
+        return face
+
+    def landmark_stage():
+        ...
+
+    def final_stage():
         ...
