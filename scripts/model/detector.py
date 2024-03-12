@@ -6,14 +6,10 @@ import torch.nn as nn
 
 
 class FaceDetector:
-    ...
+    """
+    Face bbox detector
+    """
 
-
-class S3FD(FaceDetector):
-    ...
-
-
-class YOLO5Face(FaceDetector):
     ...
 
 

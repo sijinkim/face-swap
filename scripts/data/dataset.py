@@ -46,17 +46,13 @@ class Video2Frame:
 
 class FaceExtractor:
     """
-    Extract process
-    1) rects_stage(): detect face position
-    2) landmark_stage(): get face landmarks
-    3) final_stage(): get aligned face data
+    extract a face data from frames
     """
 
-    model_type: FaceDetector
+    face_detector: FaceDetector
 
-    def rects_stage(self, image: np.ndarray) -> tuple[int, np.ndarray[int,]]:
+    def detect_stage(self, image: np.ndarray) -> tuple[int, np.ndarray]:
         """
-        [Rects_stage]
         detect face bbox and eyes, nose, mouth points.
 
         Args:
@@ -66,15 +62,52 @@ class FaceExtractor:
             face: detection results - shape [num_faces, 15 face points info]
                   (here num_faces=1)
         """
-        ret, face = self.model_type.detector.detect(image)
+        ret, face = self.face_detector.detector.detect(image)
 
         if not ret == 1:
             raise ValueError("Face detection failed.")
 
         return face
 
-    def landmark_stage():
-        ...
+    def align_stage(
+        self,
+        image: np.ndarray,
+        face: np.ndarray,
+        desired_face_width: int = 256,
+    ) -> np.ndarray:
+        """
+        Make the y-axis coordinate of the left and right eyes to the same level in the aligned image.
 
-    def final_stage():
-        ...
+        Args:
+            image: image to process
+            face: face coordinates from the detect stage
+            desired_face_width: The output width of the aligned face image
+
+        Returns:
+            np.ndarray: The processed image with aligned eye positions.
+        """
+        # apply same width, height
+        h = w = desired_face_width
+
+        # get coordinates of the center of the eyes
+        # right_eye_x > left_eye_x
+        right_eye = face[4:6]  # right_eye_x, right_eye_y
+        left_eye = face[6:8]  # left_eye_x, left_eye_y
+        eyes_center = (
+            int((right_eye[0] + left_eye[0]) // 2),
+            int((right_eye[1] + left_eye[1]) // 2),
+        )
+
+        # calculate the angle between center of the left eye and center of the right eye.
+        # rotate the image based on this angle.
+        delta_x = abs(int(left_eye[0] - right_eye[0]))
+        delta_y = abs(int(left_eye[1] - right_eye[1]))
+        angle = (np.arctan(delta_y / delta_x) * 180) / np.pi
+
+        # define 2D matrix M
+        M = cv2.getRotationMatrix2D(eyes_center, (angle), 1.0)
+        # TODO: eye_center를 이미지 center로 맞추는 과정 필요. new_x, new_y
+
+        # Applying the rotation to input image
+        rotated = cv2.warpAffine(image, M, (new_x, new_y))
+        return rotated
