@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 import torch.nn as nn
 
+MODEL_ROOT_PATH = Path("./scripts/model/weights/")
+
 
 class FaceDetector:
     """
@@ -14,7 +16,11 @@ class FaceDetector:
 
 
 class YuNet(FaceDetector):
-    def __init__(self, image_size: tuple[int, int], model_path: Path):
+    def __init__(
+        self,
+        image_size: tuple[int, int],
+        model_path: Path = Path(MODEL_ROOT_PATH, "face_detection_yunet_2023mar.onnx"),
+    ):
         """
         Args:
             image_size: a tuple of height, width of the image

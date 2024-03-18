@@ -2,8 +2,9 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from tqdm import tqdm
 
-from ..model import FaceDetector
+from ..model import FaceDetector, YuNet
 
 
 class Video2Frame:
@@ -49,7 +50,24 @@ class FaceExtractor:
     extract a face data from frames
     """
 
-    face_detector: FaceDetector
+    def __init__(
+        self,
+        detector_type: str,
+        input_dir: Path,
+        output_image_width: int = 256,
+    ) -> None:
+        self.data_root_dir = input_dir
+        self.image_paths = list(self.data_root_dir.glob("*.jpg"))
+
+        sample_frame = cv2.imread(str(self.image_paths[0]))
+        self.input_image_size = sample_frame.shape[:2] #h,w
+
+        if detector_type == 'YuNet':
+            self.face_detector: FaceDetector = YuNet(
+                image_size=(self.input_image_size[1], self.input_image_size[0])
+            )
+        
+        self.output_image_width = output_image_width
 
     def detect_stage(self, image: np.ndarray) -> tuple[int, np.ndarray]:
         """
@@ -64,16 +82,12 @@ class FaceExtractor:
         """
         ret, face = self.face_detector.detector.detect(image)
 
-        if not ret == 1:
-            raise ValueError("Face detection failed.")
-
         return face
 
     def align_stage(
         self,
         image: np.ndarray,
         eyes_coord: np.ndarray,
-        desired_face_width: int = 256,
         left_eye_desired_coordinate: np.ndarray = np.array((0.37, 0.37)),
     ) -> np.ndarray:
         """
@@ -82,14 +96,13 @@ class FaceExtractor:
         Args:
             image: image to process
             eyes_coord: a length 4 int garray of eyes coordinates from the detect stage
-            desired_face_width: The output width of the aligned face image
             left_eye_desired_coordinate: Fix coordinate ratio of left eye.
 
         Returns:
             np.ndarray: The processed image with aligned eye positions.
         """
         # apply same width, height
-        desired_face_height = desired_face_width
+        desired_face_height = self.output_image_width
 
         # get desired right eye coordinate by using left eye
         # apply same y level (e.g. left eye: [0.37, 0.37], right eye: [0.63, 0.37])
@@ -114,8 +127,8 @@ class FaceExtractor:
         )
 
         # get scaled distance between eyes
-        # final output image size(desired_face_width/height) 반영한 left/right eyes 거리
-        desired_dist_between_eyes = desired_face_width * (
+        # final output image size(self.output_image_width/height) 반영한 left/right eyes 거리
+        desired_dist_between_eyes = self.output_image_width * (
             right_eye_desired_coordinate[0] - left_eye_desired_coordinate[0]
         )
         scale = desired_dist_between_eyes / dist_between_eyes
@@ -126,13 +139,47 @@ class FaceExtractor:
         )  # shape: (2, 3), affine matrix
 
         # https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gafbbc470ce83812914a70abfb604f4326
-        M[0, 2] += 0.5 * desired_face_width - eyes_center[0]  # x transition
+        M[0, 2] += 0.5 * self.output_image_width - eyes_center[0]  # x transition
         M[1, 2] += (
             left_eye_desired_coordinate[1] * desired_face_height - eyes_center[1]
         )  # y transition
 
         # Applying the rotation to input image
         face_aligned = cv2.warpAffine(
-            image, M, (desired_face_width, desired_face_height), flags=cv2.INTER_CUBIC
+            image,
+            M,
+            (self.output_image_width, desired_face_height),
+            flags=cv2.INTER_CUBIC,
         )
         return face_aligned
+
+    def extract_stage(self) -> None:
+        """
+        Extract detected aligned face and save to a directory(input_dir/aligned)
+
+        Args:
+            input_dir: path to the directory contains frames with single face.
+            output_width: the width of final output image
+
+        Returns:
+            None
+        """
+        output_dir = self.data_root_dir / "aligned"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        for image_path in tqdm(self.image_paths):
+            image = cv2.imread(str(image_path))
+            save_path = output_dir / image_path.name
+
+            face_coordi = self.detect_stage(image=image)
+
+            if face_coordi is None:
+                print(f"Can't detect face at {image_path.name}.")
+                continue
+
+            face_aligned = self.align_stage(
+                image=image, eyes_coord=list(map(lambda x: int(x), face_coordi[0][4:8]))
+            )
+            cv2.imwrite(
+                str(save_path), face_aligned, [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+            )
