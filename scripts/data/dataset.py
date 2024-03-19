@@ -60,13 +60,13 @@ class FaceExtractor:
         self.image_paths = list(self.data_root_dir.glob("*.jpg"))
 
         sample_frame = cv2.imread(str(self.image_paths[0]))
-        self.input_image_size = sample_frame.shape[:2] #h,w
+        self.input_image_size = sample_frame.shape[:2]  # h,w
 
-        if detector_type == 'YuNet':
+        if detector_type == "YuNet":
             self.face_detector: FaceDetector = YuNet(
                 image_size=(self.input_image_size[1], self.input_image_size[0])
             )
-        
+
         self.output_image_width = output_image_width
 
     def detect_stage(self, image: np.ndarray) -> tuple[int, np.ndarray]:
