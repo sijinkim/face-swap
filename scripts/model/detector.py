@@ -11,6 +11,7 @@ class FaceDetector:
     """
     Face bbox detector
     """
+
     ...
 
 

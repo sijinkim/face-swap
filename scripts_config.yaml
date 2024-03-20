@@ -1,0 +1,16 @@
+project: face-swap
+
+dataset:
+  src_video_name: src_video.mp4 
+  dst_video_name: dst_video.mp4
+  image_width: 256
+
+models:
+  detector: YuNet
+  encoder:
+  decoder:
+
+optimizer:
+
+criterion:    
+

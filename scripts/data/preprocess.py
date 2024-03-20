@@ -2,9 +2,8 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from model import FaceDetector, YuNet
 from tqdm import tqdm
-
-from ..model import FaceDetector, YuNet
 
 
 class Video2Frame:
@@ -21,7 +20,7 @@ class Video2Frame:
         self.video_path = video_path
         self.save_path = save_dir.joinpath(self.video_path.stem)
 
-    def __call__(self) -> None:
+    def __call__(self) -> Path:
         if not self.video_path.exists():
             raise ValueError("Video file does not exist.")
 
@@ -43,6 +42,9 @@ class Video2Frame:
             frame_number += 1
 
         cap.release()
+
+        print("Converting video to frames done.")
+        return self.save_path
 
 
 class FaceExtractor:
