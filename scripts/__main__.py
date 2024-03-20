@@ -31,12 +31,12 @@ def preprocess(args):
     src_face_extractor = FaceExtractor(
         detector_type=config["models"]["detector"],
         input_dir=src_frame_path,
-        output_image_width=config["dataset"]["image_width"],
+        output_image_width=int(config["dataset"]["image_width"]),
     )
     dst_face_extractor = FaceExtractor(
         detector_type=config["models"]["detector"],
         input_dir=dst_frame_path,
-        output_image_width=config["dataset"]["image_width"],
+        output_image_width=int(config["dataset"]["image_width"]),
     )
 
     src_face_extractor.extract_stage()
