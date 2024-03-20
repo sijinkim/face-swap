@@ -31,6 +31,7 @@ class Video2Frame:
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         print(f"Start converting {self.video_path.name} to frames")
+        success_count = 0
         for frame_count in tqdm(range(total_frames)):
             ret, frame = cap.read()
 
@@ -39,11 +40,12 @@ class Video2Frame:
 
             frame_path = self.save_path / f"{self.video_path.stem}_{frame_count}.jpg"
             cv2.imwrite(str(frame_path), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            success_count += 1
 
         cap.release()
 
         print(
-            f"Converting video to frames done.\nFrame directory: {self.save_path.absolute()}"
+            f"Converting video to frames done.\nFrame directory: {self.save_path.absolute()}\nSaved frames: {success_count}/{total_frames}"
         )
         return self.save_path
 
@@ -173,9 +175,10 @@ class FaceExtractor:
         print(
             f"Start detecting and saving aligned face data from {self.data_root_dir} directory"
         )
+        success_count = 0
         for image_path in tqdm(self.image_paths):
             image = cv2.imread(str(image_path))
-            save_path = output_dir / image_path.name
+            save_path = output_dir / f"aligned_{image_path.name}"
 
             face_coordi = self.detect_stage(image=image)
 
@@ -189,5 +192,8 @@ class FaceExtractor:
             cv2.imwrite(
                 str(save_path), face_aligned, [int(cv2.IMWRITE_JPEG_QUALITY), 90]
             )
+            success_count += 1
 
-        print(f"Extracting face data done.\nAligned face data directory: {save_path}")
+        print(
+            f"Extracting face data done.Aligned face data directory: {output_dir}\nSaved face images: {success_count}/{len(self.image_paths)}"
+        )
