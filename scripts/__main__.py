@@ -7,9 +7,6 @@ from data import FaceExtractor, Video2Frame
 
 
 def preprocess(args):
-    import pdb
-
-    pdb.set_trace()
     config_file = args.config_file
     assert (
         config_file.exists()
