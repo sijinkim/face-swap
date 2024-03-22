@@ -4,6 +4,10 @@ dataset:
   src_video_name: src_video.mp4 
   dst_video_name: dst_video.mp4
   image_width: 256
+  transform_params:
+    flipping: 0.5
+    rotation: 0.05
+    scaling: 0.05
 
 models:
   detector: YuNet
